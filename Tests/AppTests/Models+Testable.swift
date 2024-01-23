@@ -20,7 +20,7 @@ extension User {
 }
 
 enum CreationError: Error {
-    case badUserID
+    case badUserID, badAcronymID, badCategoryID
 }
 
 extension Acronym {
@@ -39,5 +39,14 @@ extension Acronym {
         try await acronym.save(on: database)
         
         return acronym
+    }
+}
+
+extension App.Category {
+    static func create(name: String = "Random", on database: Database) async throws -> App.Category {
+        let category = App.Category(name: name)
+        try await category.save(on: database)
+        
+        return category
     }
 }

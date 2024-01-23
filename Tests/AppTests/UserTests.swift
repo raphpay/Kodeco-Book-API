@@ -42,7 +42,6 @@ final class UserTests: XCTestCase {
             XCTAssertEqual(receivedUser.username, expectedUsername)
             XCTAssertNotNil(receivedUser.id)
         }
-
     }
     
     func testUsersCanBeRetrievedFromAPI() async throws {
