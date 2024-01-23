@@ -36,6 +36,24 @@ func routes(_ app: Application) throws {
         // 3
         .unwrap(or: Abort(.notFound))
     }
+    
+    // 1
+    app.put("api", "acronyms", ":acronymID") {
+      req -> EventLoopFuture<Acronym> in
+      // 2
+      let updatedAcronym = try req.content.decode(Acronym.self)
+      return Acronym.find(
+          req.parameters.get("acronymID"),
+          on: req.db)
+        .unwrap(or: Abort(.notFound)).flatMap { acronym in
+          acronym.short = updatedAcronym.short
+          acronym.long = updatedAcronym.long
+          return acronym.save(on: req.db).map {
+            acronym
+          }
+      }
+    }
+
 
 //    try app.register(collection: TodoController())
 }
