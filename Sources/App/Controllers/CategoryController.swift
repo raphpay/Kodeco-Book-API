@@ -16,6 +16,7 @@ struct CategoryController: RouteCollection {
         // Read
         categories.get(use: getAll)
         categories.get(":categoryID", use: getSingle)
+        categories.get(":categoryID", "acronyms", use: getAcronyms)
         // Update
         // Delete
     }
@@ -40,6 +41,16 @@ struct CategoryController: RouteCollection {
         Category
             .find(req.parameters.get("categoryID"), on: req.db)
             .unwrap(or: Abort(.notFound))
+    }
+    
+    func getAcronyms(req: Request) throws -> EventLoopFuture<[Acronym]> {
+        Category
+            .find(req.parameters.get("categoryID"), on: req.db)
+            .unwrap(or: Abort(.notFound))
+            .flatMap { category in
+                category.$acronyms
+                    .get(on: req.db)
+            }
     }
     
     // MARK: - Update
