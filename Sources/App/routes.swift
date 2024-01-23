@@ -98,6 +98,16 @@ func routes(_ app: Application) throws {
             }
             .all()
     }
+    
+    // 1
+    app.get("api", "acronyms", "first") {
+      req -> EventLoopFuture<Acronym> in
+      // 2
+      Acronym.query(on: req.db)
+        .first()
+        .unwrap(or: Abort(.notFound))
+    }
+
 
 
 //    try app.register(collection: TodoController())
