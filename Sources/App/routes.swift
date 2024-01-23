@@ -6,5 +6,6 @@ func routes(_ app: Application) throws {
         "It works!"
     }
 
+    try app.register(collection: UserController())
     try app.register(collection: AcronymController())
 }
