@@ -68,6 +68,37 @@ func routes(_ app: Application) throws {
             .transform(to: .noContent)
       }
     }
+    
+    // 1
+//    app.get("api", "acronyms", "search") {
+//      req -> EventLoopFuture<[Acronym]> in
+//      // 2
+//      guard let searchTerm =
+//        req.query[String.self, at: "term"] else {
+//        throw Abort(.badRequest)
+//      }
+//      // 3
+//      return Acronym.query(on: req.db)
+//        .filter(\.$short == searchTerm)
+//        .all()
+//    }
+    
+    app.get("api", "acronyms", "search") {
+      req -> EventLoopFuture<[Acronym]> in
+      // 2
+      guard let searchTerm =
+        req.query[String.self, at: "term"] else {
+        throw Abort(.badRequest)
+      }
+      // 3
+        return Acronym.query(on: req.db)
+            .group(.or) { or in
+                or.filter(\.$short == searchTerm)
+                or.filter(\.$long == searchTerm)
+            }
+            .all()
+    }
+
 
 //    try app.register(collection: TodoController())
 }
