@@ -20,6 +20,22 @@ func routes(_ app: Application) throws {
         acronym
       }
     }
+    
+    // 1
+    app.get("api", "acronyms") {
+      req -> EventLoopFuture<[Acronym]> in
+      // 2
+      Acronym.query(on: req.db).all()
+    }
+
+    // 1
+    app.get("api", "acronyms", ":acronymID") {
+      req -> EventLoopFuture<Acronym> in
+      // 2
+      Acronym.find(req.parameters.get("acronymID"), on: req.db)
+        // 3
+        .unwrap(or: Abort(.notFound))
+    }
 
 //    try app.register(collection: TodoController())
 }
