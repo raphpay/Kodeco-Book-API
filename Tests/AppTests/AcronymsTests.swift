@@ -22,7 +22,10 @@ final class AcronymsTests: XCTestCase {
         app.shutdown()
         super.tearDown()
     }
-    
+}
+
+// MARK: - Create
+extension AcronymsTests {
     func testAcronymCanBeSavedWithAPI() async throws {
         app = try await Application.testable()
         
@@ -42,45 +45,10 @@ final class AcronymsTests: XCTestCase {
             XCTAssertNotNil(receivedAcronym.id)
         }
     }
-    
-    func testAcronymsCategories() async throws {
-        app = try await Application.testable()
-        
-        let user = try await User.create(on: app.db)
-        guard let userID = user.id else { throw CreationError.badUserID }
-        
-        let acronym = try await Acronym.create(on: app.db)
-        guard let acronymID = acronym.id else { throw CreationError.badAcronymID }
-        
-        let category = try await Category.create(name: expectedCategoryName, on: app.db)
-        let categoryTwo = try await Category.create(on: app.db)
-        guard let categoryID = category.id,
-              let categoryTwoID = categoryTwo.id else { throw CreationError.badCategoryID }
-        
-        try await app.test(.POST, "\(acronymsURI)/\(acronymID)/categories/\(categoryID)")
-        try await app.test(.POST, "\(acronymsURI)/\(acronymID)/categories/\(categoryTwoID)")
-    
-        try app.test(.GET, "\(acronymsURI)/\(acronymID)/categories") { response in
-            XCTAssertEqual(response.status, .ok)
-            
-            let categories = try response.content.decode([App.Category].self)
-            XCTAssertEqual(categories.count, 2)
-            XCTAssertEqual(categories[0].name, expectedCategoryName)
-            XCTAssertEqual(categories[0].id, categoryID)
-        }
-        
-        try await app.test(.DELETE, "\(acronymsURI)/\(acronymID)/categories/\(categoryTwoID)")
-        
-        try app.test(.GET, "\(acronymsURI)/\(acronymID)/categories") { response in
-            XCTAssertEqual(response.status, .ok)
-            
-            let categories = try response.content.decode([App.Category].self)
-            XCTAssertEqual(categories.count, 1)
-            XCTAssertEqual(categories[0].name, expectedCategoryName)
-            XCTAssertEqual(categories[0].id, categoryID)
-        }
-    }
-    
+}
+
+// MARK: - Read
+extension AcronymsTests {
     func testAcronymsCanBeRetrievedFromAPI() async throws {
         app = try await Application.testable()
         
@@ -138,7 +106,10 @@ final class AcronymsTests: XCTestCase {
             XCTAssertEqual(receivedUser.id, userID)
         }
     }
-    
+}
+
+// MARK: - Update
+extension AcronymsTests {
     func testUpdateAcronymOnAPI() async throws {
         app = try await Application.testable()
         
@@ -161,7 +132,9 @@ final class AcronymsTests: XCTestCase {
             XCTAssertEqual(receivedAcronym.id, acronymID)
         }
     }
-    
+}
+// MARK: - Delete
+extension AcronymsTests {
     func testDeleteAcronymFromAPI() async throws {
         app = try await Application.testable()
         
@@ -179,7 +152,10 @@ final class AcronymsTests: XCTestCase {
             XCTAssertEqual(acronyms.count, 0)
         }
     }
-    
+}
+
+// MARK: - Queries
+extension AcronymsTests {
     func testSearchAcronymWithShortOnAPI() async throws {
         app = try await Application.testable()
         
@@ -255,6 +231,46 @@ final class AcronymsTests: XCTestCase {
             XCTAssertEqual(acronyms[0].short, expectedFirstShort)
             XCTAssertEqual(acronyms[0].long, expectedFirstLong)
             XCTAssertEqual(acronyms[0].id, acronymTwoID)
+        }
+    }
+}
+
+// MARK: - Categories
+extension AcronymsTests {
+    func testAcronymsCategories() async throws {
+        app = try await Application.testable()
+        
+        let user = try await User.create(on: app.db)
+        
+        let acronym = try await Acronym.create(on: app.db)
+        guard let acronymID = acronym.id else { throw CreationError.badAcronymID }
+        
+        let category = try await Category.create(name: expectedCategoryName, on: app.db)
+        let categoryTwo = try await Category.create(on: app.db)
+        guard let categoryID = category.id,
+              let categoryTwoID = categoryTwo.id else { throw CreationError.badCategoryID }
+        
+        try await app.test(.POST, "\(acronymsURI)/\(acronymID)/categories/\(categoryID)")
+        try await app.test(.POST, "\(acronymsURI)/\(acronymID)/categories/\(categoryTwoID)")
+    
+        try app.test(.GET, "\(acronymsURI)/\(acronymID)/categories") { response in
+            XCTAssertEqual(response.status, .ok)
+            
+            let categories = try response.content.decode([App.Category].self)
+            XCTAssertEqual(categories.count, 2)
+            XCTAssertEqual(categories[0].name, expectedCategoryName)
+            XCTAssertEqual(categories[0].id, categoryID)
+        }
+        
+        try await app.test(.DELETE, "\(acronymsURI)/\(acronymID)/categories/\(categoryTwoID)")
+        
+        try app.test(.GET, "\(acronymsURI)/\(acronymID)/categories") { response in
+            XCTAssertEqual(response.status, .ok)
+            
+            let categories = try response.content.decode([App.Category].self)
+            XCTAssertEqual(categories.count, 1)
+            XCTAssertEqual(categories[0].name, expectedCategoryName)
+            XCTAssertEqual(categories[0].id, categoryID)
         }
     }
 }
