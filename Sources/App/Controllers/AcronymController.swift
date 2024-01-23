@@ -16,6 +16,7 @@ final class AcronymController: RouteCollection {
         // Read
         acronyms.get(use: getAll)
         acronyms.get(":acronymID", use: getSingle)
+        acronyms.get(":acronymID", "user", use: getUser)
         // Update
         acronyms.put(":acronymID", use: update)
         // Delete
@@ -47,6 +48,16 @@ final class AcronymController: RouteCollection {
         Acronym
             .find(req.parameters.get("acronymID"), on: req.db)
             .unwrap(or: Abort(.notFound))
+    }
+    
+    func getUser(req: Request) throws -> EventLoopFuture<User> {
+        Acronym
+            .find(req.parameters.get("acronymID"), on: req.db)
+            .unwrap(or: Abort(.notFound))
+            .flatMap { acronym in
+                acronym.$user
+                    .get(on: req.db)
+            }
     }
     
     // MARK: - Update
