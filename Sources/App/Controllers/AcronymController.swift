@@ -28,7 +28,9 @@ final class AcronymController: RouteCollection {
     
     // MARK: - Create
     func create(req: Request) throws -> EventLoopFuture<Acronym> {
-        let acronym = try req.content.decode(Acronym.self)
+        let data = try req.content.decode(CreateAcronymData.self)
+        let acronym = Acronym(short: data.short, long: data.long, userID: data.userID)
+        
         return acronym
             .save(on: req.db)
             .map { acronym }
@@ -49,13 +51,13 @@ final class AcronymController: RouteCollection {
     
     // MARK: - Update
     func update(req: Request) throws -> EventLoopFuture<Acronym> {
-        let updatedAcronym = try req.content.decode(Acronym.self)
+        let updatedData = try req.content.decode(CreateAcronymData.self)
         return Acronym
             .find(req.parameters.get("acronymID"), on: req.db)
             .unwrap(or: Abort(.notFound))
             .flatMap { acronym in
-                acronym.short = updatedAcronym.short
-                acronym.long = updatedAcronym.long
+                acronym.short = updatedData.short
+                acronym.long = updatedData.long
                 return acronym
                     .save(on: req.db)
                     .map { acronym }
