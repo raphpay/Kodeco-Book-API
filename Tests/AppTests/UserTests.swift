@@ -100,7 +100,7 @@ final class UserTests: XCTestCase {
             XCTAssertEqual(acronyms[0].short, expectedShort)
             XCTAssertEqual(acronyms[0].long, expectedLong)
             XCTAssertEqual(acronyms[0].id, acronym.id)
-            XCTAssertEqual(acronyms[0].user.id, userID)
+            XCTAssertEqual(acronyms[0].$user.id, userID)
         }
     }
 }
