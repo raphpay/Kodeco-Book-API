@@ -26,7 +26,10 @@ final class UserTests: XCTestCase {
         app.shutdown()
         super.tearDown()
     }
-    
+}
+
+// MARK: - Create
+extension UserTests {
     func testUserCanBeCreatedOnAPI() async throws {
         app = try await Application.testable()
         
@@ -43,7 +46,10 @@ final class UserTests: XCTestCase {
             XCTAssertNotNil(receivedUser.id)
         }
     }
-    
+}
+
+// MARK: - Read
+extension UserTests {
     func testUsersCanBeRetrievedFromAPI() async throws {
         app = try await Application.testable()
         
@@ -103,3 +109,6 @@ final class UserTests: XCTestCase {
         }
     }
 }
+
+// MARK: - Update
+// MARK: - Delete
