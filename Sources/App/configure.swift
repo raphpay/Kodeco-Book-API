@@ -3,13 +3,22 @@ import Fluent
 import FluentMongoDriver
 import Vapor
 
+
 // configures your application
 public func configure(_ app: Application) async throws {
     // uncomment to serve files from /Public folder
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-
+    
+    let connection: String
+    
+    if app.environment == .testing {
+        connection = "mongodb://localhost:27017/vapor_test"
+    } else {
+        connection = "mongodb://localhost:27017/vapor_database"
+    }
+    
     try app.databases.use(DatabaseConfigurationFactory.mongo(
-        connectionString: Environment.get("DATABASE_URL") ?? "mongodb://localhost:27017/vapor_database"
+        connectionString: connection
     ), as: .mongo)
 
     app.migrations.add(CreateUser())
