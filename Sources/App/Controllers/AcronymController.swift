@@ -13,10 +13,12 @@ final class AcronymController: RouteCollection {
         let acronyms = routes.grouped("api", "acronyms")
         // Create
         acronyms.post(use: create)
+        acronyms.post(":acronymID", "categories", ":categoryID", use: addCategory)
         // Read
         acronyms.get(use: getAll)
         acronyms.get(":acronymID", use: getSingle)
         acronyms.get(":acronymID", "user", use: getUser)
+        acronyms.get(":acronymID", "categories", use: getCategories)
         // Update
         acronyms.put(":acronymID", use: update)
         // Delete
@@ -35,6 +37,24 @@ final class AcronymController: RouteCollection {
         return acronym
             .save(on: req.db)
             .map { acronym }
+    }
+    
+    func addCategory(req: Request) throws -> EventLoopFuture<Category> {
+        let acronymQuery = Acronym
+            .find(req.parameters.get("acronymID"), on: req.db)
+            .unwrap(or: Abort(.notFound))
+        
+        let categoryQuery = Category
+            .find(req.parameters.get("categoryID"), on: req.db)
+            .unwrap(or: Abort(.notFound))
+        
+        return acronymQuery.and(categoryQuery)
+            .flatMap { acronym, category in
+                acronym
+                    .$categories
+                    .attach(category, on: req.db)
+                    .map { category }
+            }
     }
     
     // MARK: - Read
@@ -56,6 +76,16 @@ final class AcronymController: RouteCollection {
             .unwrap(or: Abort(.notFound))
             .flatMap { acronym in
                 acronym.$user
+                    .get(on: req.db)
+            }
+    }
+    
+    func getCategories(req: Request) throws -> EventLoopFuture<[Category]> {
+        Acronym
+            .find(req.parameters.get("acronymID"), on: req.db)
+            .unwrap(or: Abort(.notFound))
+            .flatMap { acronym in
+                acronym.$categories
                     .get(on: req.db)
             }
     }
