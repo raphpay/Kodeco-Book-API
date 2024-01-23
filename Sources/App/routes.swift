@@ -54,6 +54,20 @@ func routes(_ app: Application) throws {
       }
     }
 
+    // 1
+    app.delete("api", "acronyms", ":acronymID") {
+      req -> EventLoopFuture<HTTPStatus> in
+      // 2
+      Acronym.find(req.parameters.get("acronymID"), on: req.db)
+        .unwrap(or: Abort(.notFound))
+        // 3
+        .flatMap { acronym in
+          // 4
+          acronym.delete(on: req.db)
+            // 5
+            .transform(to: .noContent)
+      }
+    }
 
 //    try app.register(collection: TodoController())
 }
