@@ -9,19 +9,27 @@
 import XCTVapor
 
 final class UserTests: XCTestCase {
+    let expectedName = "Alice"
+    let expectedUsername = "alicemerveilles"
+    let usersURI = "/api/users/"
+    var app: Application!
+    
+    override func setUp() {
+        super.setUp()
+        // Set up code here
+    }
+    
+    override func tearDown() {
+        // Tear down code here
+        app.shutdown()
+        super.tearDown()
+    }
+    
     func testUsersCanBeRetrievedFromAPI() async throws {
-        let expectedName = "Alice"
-        let expectedUsername = "alicemerveilles"
+        app = try await Application.testable()
         
-        let app = Application(.testing)
-        defer { app.shutdown() }
-        try await configure(app)
-        try await app.autoRevert()
-        try await app.autoMigrate()
-        
-        let user = User(name: expectedName, username: expectedUsername)
-        try await user.save(on: app.db)
-        try await User(name: "Luke", username: "luckyluke").save(on: app.db)
+        let user = try await User.create(name: expectedName, username: expectedUsername, on: app.db)
+        let _ = try await User.create(on: app.db)
         
         try app.test(.GET, "/api/users") { response in
             XCTAssertEqual(response.status, .ok)
