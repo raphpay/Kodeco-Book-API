@@ -23,6 +23,7 @@ final class AcronymController: RouteCollection {
         acronyms.put(":acronymID", use: update)
         // Delete
         acronyms.delete(":acronymID", use: delete)
+        acronyms.delete(":acronymID", "categories", ":categoryID", use: removeCategory)
         // Queries
         acronyms.get("search", use: search)
         acronyms.get("first", use: first)
@@ -113,6 +114,23 @@ final class AcronymController: RouteCollection {
             .flatMap { acronym in
                 acronym
                     .delete(on: req.db)
+                    .transform(to: .noContent)
+            }
+    }
+    
+    func removeCategory(req: Request) throws -> EventLoopFuture<HTTPStatus> {
+        let acronymQuery = Acronym
+            .find(req.parameters.get("acronymID"), on: req.db)
+            .unwrap(or: Abort(.notFound))
+        
+        let categoryQuery = Category
+            .find(req.parameters.get("categoryID"), on: req.db)
+            .unwrap(or: Abort(.notFound))
+        
+        return acronymQuery.and(categoryQuery)
+            .flatMap { acronym, category in
+                acronym.$categories
+                    .detach(category, on: req.db)
                     .transform(to: .noContent)
             }
     }
