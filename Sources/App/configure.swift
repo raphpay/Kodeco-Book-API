@@ -2,7 +2,7 @@ import NIOSSL
 import Fluent
 import FluentMongoDriver
 import Vapor
-
+import Leaf
 
 // configures your application
 public func configure(_ app: Application) async throws {
@@ -29,6 +29,8 @@ public func configure(_ app: Application) async throws {
     app.logger.logLevel = .debug
     
     try await app.autoMigrate()
+    
+    app.views.use(.leaf)
 
     // register routes
     try routes(app)
