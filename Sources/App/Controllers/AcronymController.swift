@@ -12,28 +12,43 @@ final class AcronymController: RouteCollection {
     func boot(routes: Vapor.RoutesBuilder) throws {
         let acronyms = routes.grouped("api", "acronyms")
         // Create
-        acronyms.post(use: create)
-        acronyms.post(":acronymID", "categories", ":categoryID", use: addCategory)
+//        acronyms.post(use: create)
+//        acronyms.post(":acronymID", "categories", ":categoryID", use: addCategory)
         // Read
         acronyms.get(use: getAll)
         acronyms.get(":acronymID", use: getSingle)
         acronyms.get(":acronymID", "user", use: getUser)
         acronyms.get(":acronymID", "categories", use: getCategories)
         // Update
-        acronyms.put(":acronymID", use: update)
+//        acronyms.put(":acronymID", use: update)
         // Delete
-        acronyms.delete(":acronymID", use: delete)
-        acronyms.delete(":acronymID", "categories", ":categoryID", use: removeCategory)
+//        acronyms.delete(":acronymID", use: delete)
+//        acronyms.delete(":acronymID", "categories", ":categoryID", use: removeCategory)
         // Queries
         acronyms.get("search", use: search)
         acronyms.get("first", use: first)
         acronyms.get("sorted", use: sorted)
+        // Protected
+//        let basicAuthMiddleware = User.authenticator()
+//        let guardAuthMiddleware = User.guardMiddleware()
+//        let protected = acronyms.grouped(basicAuthMiddleware, guardAuthMiddleware)
+//        protected.post(use: create)
+        // Token
+        let tokenAuthMiddleware = Token.authenticator()
+        let guardAuthMiddleware = User.guardMiddleware()
+        let tokenAuthGroup = acronyms.grouped(tokenAuthMiddleware, guardAuthMiddleware)
+        tokenAuthGroup.post(use: create)
+        tokenAuthGroup.post(":acronymID", "categories", ":categoryID", use: addCategory)
+        tokenAuthGroup.put(":acronymID", use: update)
+        tokenAuthGroup.delete(":acronymID", use: delete)
+        tokenAuthGroup.delete(":acronymID", "categories", ":categoryID",use: removeCategory)
     }
     
     // MARK: - Create
     func create(req: Request) throws -> EventLoopFuture<Acronym> {
         let data = try req.content.decode(CreateAcronymData.self)
-        let acronym = Acronym(short: data.short, long: data.long, userID: data.userID)
+        let user = try req.auth.require(User.self)
+        let acronym = try Acronym(short: data.short, long: data.long, userID: user.requireID())
         
         return acronym
             .save(on: req.db)
@@ -71,13 +86,14 @@ final class AcronymController: RouteCollection {
             .unwrap(or: Abort(.notFound))
     }
     
-    func getUser(req: Request) throws -> EventLoopFuture<User> {
+    func getUser(req: Request) throws -> EventLoopFuture<User.Public> {
         Acronym
             .find(req.parameters.get("acronymID"), on: req.db)
             .unwrap(or: Abort(.notFound))
             .flatMap { acronym in
                 acronym.$user
                     .get(on: req.db)
+                    .convertToPublic()
             }
     }
     
@@ -94,12 +110,16 @@ final class AcronymController: RouteCollection {
     // MARK: - Update
     func update(req: Request) throws -> EventLoopFuture<Acronym> {
         let updatedData = try req.content.decode(CreateAcronymData.self)
+        let user = try req.auth.require(User.self)
+        let userID = try user.requireID()
+        
         return Acronym
             .find(req.parameters.get("acronymID"), on: req.db)
             .unwrap(or: Abort(.notFound))
             .flatMap { acronym in
                 acronym.short = updatedData.short
                 acronym.long = updatedData.long
+                acronym.$user.id = userID
                 return acronym
                     .save(on: req.db)
                     .map { acronym }
