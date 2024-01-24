@@ -33,7 +33,7 @@ extension UserTests {
     func testUserCanBeCreatedOnAPI() async throws {
         app = try await Application.testable()
         
-        let user = User(name: expectedName, username: expectedUsername)
+        let user = User(name: expectedName, username: expectedUsername, password: "password")
         
         try app.test(.POST, usersURI) { req in
             try req.content.encode(user)

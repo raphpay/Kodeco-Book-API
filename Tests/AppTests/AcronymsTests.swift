@@ -240,8 +240,6 @@ extension AcronymsTests {
     func testAcronymsCategories() async throws {
         app = try await Application.testable()
         
-        let user = try await User.create(on: app.db)
-        
         let acronym = try await Acronym.create(on: app.db)
         guard let acronymID = acronym.id else { throw CreationError.badAcronymID }
         
