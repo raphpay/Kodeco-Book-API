@@ -12,13 +12,17 @@ struct CategoryController: RouteCollection {
     func boot(routes: Vapor.RoutesBuilder) throws {
         let categories = routes.grouped("api", "categories")
         // Create
-        categories.post(use: create)
+//        categories.post(use: create)
         // Read
         categories.get(use: getAll)
         categories.get(":categoryID", use: getSingle)
         categories.get(":categoryID", "acronyms", use: getAcronyms)
         // Update
         // Delete
+        let tokenAuthMiddleware = Token.authenticator()
+        let guardAuthMiddleware = User.guardMiddleware()
+        let tokenAuthGroup = categories.grouped(tokenAuthMiddleware, guardAuthMiddleware)
+        tokenAuthGroup.post(use: create)
     }
     
     // MARK: - Create
