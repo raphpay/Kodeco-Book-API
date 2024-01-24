@@ -26,6 +26,7 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateCategory())
     app.migrations.add(CreateAcronymCategoryPivot())
     app.migrations.add(CreateToken())
+    app.migrations.add(CreateAdminUser())
     
     app.logger.logLevel = .debug
     
