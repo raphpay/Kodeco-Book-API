@@ -71,13 +71,14 @@ final class AcronymController: RouteCollection {
             .unwrap(or: Abort(.notFound))
     }
     
-    func getUser(req: Request) throws -> EventLoopFuture<User> {
+    func getUser(req: Request) throws -> EventLoopFuture<User.Public> {
         Acronym
             .find(req.parameters.get("acronymID"), on: req.db)
             .unwrap(or: Abort(.notFound))
             .flatMap { acronym in
                 acronym.$user
                     .get(on: req.db)
+                    .convertToPublic()
             }
     }
     
