@@ -9,18 +9,18 @@ import Fluent
 import Vapor
 
 final class Acronym: Model, Content {
-    static let schema = "acronyms"
+    static let schema = Acronym.v20240125.schemaName
     
     @ID
     var id: UUID?
     
-    @Field(key: "short")
+    @Field(key: Acronym.v20240125.short)
     var short: String
     
-    @Field(key: "long")
+    @Field(key: Acronym.v20240125.long)
     var long: String
     
-    @Parent(key: "userID")
+    @Parent(key: Acronym.v20240125.userID)
     var user: User
     
     @Siblings(through: AcronymCategoryPivot.self,

@@ -28,4 +28,3 @@ struct CreateAdminUser: Migration {
             .delete()
     }
 }
-

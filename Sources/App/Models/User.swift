@@ -9,18 +9,18 @@ import Fluent
 import Vapor
 
 final class User: Model, Content {
-    static let schema: String = "users"
+    static let schema: String = User.v20240125.schemaName
     
     @ID
     var id: UUID?
     
-    @Field(key: "name")
+    @Field(key: User.v20240125.name)
     var name: String
     
-    @Field(key: "username")
+    @Field(key: User.v20240125.username)
     var username: String
     
-    @Field(key: "password")
+    @Field(key: User.v20240125.password)
     var password: String
     
     @Children(for: \.$user)

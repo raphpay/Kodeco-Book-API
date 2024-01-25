@@ -24,6 +24,14 @@ struct CreateUser: Migration {
             .schema("users")
             .delete()
     }
-    
-    
+}
+
+extension User {
+    enum v20240125 {
+        static let schemaName = "users"
+        static let id = FieldKey(stringLiteral: "id")
+        static let name = FieldKey(stringLiteral: "name")
+        static let username = FieldKey(stringLiteral: "username")
+        static let password = FieldKey(stringLiteral: "password")
+    }
 }
