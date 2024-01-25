@@ -9,12 +9,12 @@ import Fluent
 import Vapor
 
 final class Category: Model, Content {
-    static let schema: String = "categories"
+    static let schema: String = Category.v20240125.schemaName
     
     @ID
     var id: UUID?
     
-    @Field(key: "name")
+    @Field(key: Category.v20240125.name)
     var name: String
     
     @Siblings(through: AcronymCategoryPivot.self,

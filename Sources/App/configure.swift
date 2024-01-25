@@ -26,7 +26,14 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateCategory())
     app.migrations.add(CreateAcronymCategoryPivot())
     app.migrations.add(CreateToken())
-    app.migrations.add(CreateAdminUser())
+    app.migrations.add(AddTwitterToUser())
+    switch app.environment {
+    case .development:
+        app.migrations.add(CreateAdminUser())
+    default:
+        break
+    }
+    app.migrations.add(MakeCateroiesUnique())
     
     app.logger.logLevel = .debug
     

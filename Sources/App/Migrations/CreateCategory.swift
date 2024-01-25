@@ -10,15 +10,23 @@ import Fluent
 struct CreateCategory: Migration {
     func prepare(on database: FluentKit.Database) -> NIOCore.EventLoopFuture<Void> {
         database
-            .schema("categories")
+            .schema(Category.v20240125.schemaName)
             .id()
-            .field("name", .string, .required)
+            .field(Category.v20240125.name, .string, .required)
             .create()
     }
     
     func revert(on database: FluentKit.Database) -> NIOCore.EventLoopFuture<Void> {
         database
-            .schema("categories")
+            .schema(Category.v20240125.schemaName)
             .delete()
+    }
+}
+
+extension Category {
+    enum v20240125 {
+        static let schemaName = "categories"
+        static let id = FieldKey(stringLiteral: "id")
+        static let name = FieldKey(stringLiteral: "name")
     }
 }

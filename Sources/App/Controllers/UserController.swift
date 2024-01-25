@@ -11,11 +11,14 @@ import Vapor
 struct UserController: RouteCollection {
     func boot(routes: Vapor.RoutesBuilder) throws {
         let users = routes.grouped("api", "users")
+        let usersV2 = routes.grouped("api", "v2", "users")
         // Create
 //        users.post(use: create)
         // Read
         users.get(use: getAll)
+        usersV2.get(use: getAllV2)
         users.get(":userID", use: getSingle)
+        usersV2.get(":userID", use: getSingleV2)
         users.get(":userID", "acronyms", use: getAcronyms)
         // Protected
         let basicAuthMiddleware = User.authenticator()
@@ -45,11 +48,25 @@ struct UserController: RouteCollection {
             .convertToPublic()
     }
     
+    func getAllV2(req: Request) throws -> EventLoopFuture<[User.PublicV2]> {
+        User
+            .query(on: req.db)
+            .all()
+            .convertToPublicV2()
+    }
+    
     func getSingle(req: Request) throws -> EventLoopFuture<User.Public> {
         User
             .find(req.parameters.get("userID"), on: req.db)
             .unwrap(or: Abort(.notFound))
             .convertToPublic()
+    }
+    
+    func getSingleV2(req: Request) throws -> EventLoopFuture<User.PublicV2> {
+        User
+            .find(req.parameters.get("userID"), on: req.db)
+            .unwrap(or: Abort(.notFound))
+            .convertToPublicV2()
     }
     
     func getAcronyms(req: Request) throws -> EventLoopFuture<[Acronym]> {
