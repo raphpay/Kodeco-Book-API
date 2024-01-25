@@ -50,11 +50,29 @@ final class User: Model, Content {
             self.username = username
         }
     }
+    
+    final class PublicV2: Content {
+        var id: UUID?
+        var name: String
+        var username: String
+        var twitterURL: String?
+        
+        init(id: UUID?, name: String, username: String, twitterURL: String? = nil) {
+            self.id = id
+            self.name = name
+            self.username = username
+            self.twitterURL = twitterURL
+        }
+    }
 }
 
 extension User {
     func convertToPublic() -> User.Public {
         return User.Public(id: id, name: name, username: username)
+    }
+    
+    func convertToPublicV2() -> User.PublicV2 {
+        return User.PublicV2(id: id, name: name, username: username, twitterURL: twitterURL)
     }
 }
 
@@ -64,12 +82,22 @@ extension EventLoopFuture where Value: User {
             return user.convertToPublic()
         }
     }
+    
+    func convertToPublicV2() -> EventLoopFuture<User.PublicV2> {
+        return self.map { user in
+            return user.convertToPublicV2()
+        }
+    }
 }
 
 
 extension Collection where Element: User {
     func convertToPublic() -> [User.Public] {
         return self.map { $0.convertToPublic() }
+    }
+    
+    func convertToPublicV2() -> [User.PublicV2] {
+        return self.map { $0.convertToPublicV2() }
     }
 }
 
