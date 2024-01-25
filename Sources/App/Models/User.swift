@@ -105,6 +105,10 @@ extension EventLoopFuture where Value == Array<User> {
     func convertToPublic() -> EventLoopFuture<[User.Public]> {
         return self.map { $0.convertToPublic() }
     }
+    
+    func convertToPublicV2() -> EventLoopFuture<[User.PublicV2]> {
+        return self.map { $0.convertToPublicV2() }
+    }
 }
 
 extension User: ModelAuthenticatable {

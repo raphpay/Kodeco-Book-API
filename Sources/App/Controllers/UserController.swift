@@ -16,6 +16,7 @@ struct UserController: RouteCollection {
 //        users.post(use: create)
         // Read
         users.get(use: getAll)
+        usersV2.get(use: getAllV2)
         users.get(":userID", use: getSingle)
         usersV2.get(":userID", use: getSingleV2)
         users.get(":userID", "acronyms", use: getAcronyms)
@@ -45,6 +46,13 @@ struct UserController: RouteCollection {
             .query(on: req.db)
             .all()
             .convertToPublic()
+    }
+    
+    func getAllV2(req: Request) throws -> EventLoopFuture<[User.PublicV2]> {
+        User
+            .query(on: req.db)
+            .all()
+            .convertToPublicV2()
     }
     
     func getSingle(req: Request) throws -> EventLoopFuture<User.Public> {
