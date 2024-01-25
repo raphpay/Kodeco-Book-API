@@ -34,4 +34,8 @@ extension User {
         static let username = FieldKey(stringLiteral: "username")
         static let password = FieldKey(stringLiteral: "password")
     }
+    
+    enum v20240125b {
+        static let twitterURL = FieldKey(stringLiteral: "twitterURL")
+    }
 }

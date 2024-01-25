@@ -26,13 +26,17 @@ final class User: Model, Content {
     @Children(for: \.$user)
     var acronyms: [Acronym]
     
+    @OptionalField(key: User.v20240125b.twitterURL)
+    var twitterURL: String?
+    
     init() {}
     
-    init(id: UUID? = nil, name: String, username: String, password: String) {
+    init(id: UUID? = nil, name: String, username: String, password: String, twitterURL: String? = nil) {
         self.id = id
         self.name = name
         self.username = username
         self.password = password
+        self.twitterURL = twitterURL
     }
     
     final class Public: Content {
